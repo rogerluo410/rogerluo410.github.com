@@ -7,7 +7,6 @@ categories:
   - Tech
 ---
 
-#Test
 
 `YinXuan`,  Love is hard to speak out.
 
