@@ -2,7 +2,6 @@
 title: 'Sorry for Xuan'
 author: roger luo
 layout: post
-permalink: /hack-typography/
 categories:
   - Tech
 ---
