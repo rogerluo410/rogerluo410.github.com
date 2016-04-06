@@ -2,21 +2,25 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Roger Luo</title>
-    <description>An unknown coder.</description>
+    <description>A coder of rails.</description>
     <link></link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
-        <title>Sorry for Xuan</title>
-        <description>&lt;p&gt;&lt;code&gt;YinXuan&lt;/code&gt;,  Love is hard to speak out.&lt;/p&gt;
+        <title>Test for Markdown</title>
+        <description>
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;table style=&quot;border-spacing: 0&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;gutter gl&quot; style=&quot;text-align: right&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt; &lt;span class=&quot;nb&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hello, GitHub pages!&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;Sorry for the disappear before,&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.ruanyifeng.com/blog/2012/08/blogging_with_jekyll.html&quot;&gt;Jekyll&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;http://demisx.github.io/jekyll/2014/01/13/improve-code-highlighting-in-jekyll.html&quot;&gt;Code HighLight&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&quot;http://www.appinn.com/markdown/&quot;&gt;Markdown doc&lt;/a&gt;&lt;br /&gt;
+&lt;img src=&quot;/images/md.jpg&quot; alt=&quot;md&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Lets try my best!&lt;/p&gt;
 </description>
         <pubDate>Wed, 06 Apr 2016 00:00:00 -0700</pubDate>
-        <link>//test-for-markdown</link>
-        <guid isPermaLink="true">//test-for-markdown</guid>
+        <link>//tech/2016/04/06/test-for-markdown.html</link>
+        <guid isPermaLink="true">//tech/2016/04/06/test-for-markdown.html</guid>
       </item>
     
   </channel>

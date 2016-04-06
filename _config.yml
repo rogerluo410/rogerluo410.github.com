@@ -6,7 +6,7 @@
 name: Roger Luo
 
 # A short bio or description (displayed in the header)
-description: An unknown coder.
+description: A coder of rails.
 
 # Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
 # Used for Sitemap.xml and your RSS feed
@@ -17,7 +17,7 @@ url: http://rogerluo.github.io
 #   1. Go to https://github.com/YOURUSERNAME/
 #   2. Right click and Copy Image URL on your profile pic,
 #   3. Take the first long ID from the URL and paste it in place of mine below
-avatar: http://imglf1.nosdn0.126.net/img/WENlT3Vud0JMSFJWMEhxSkY5RDdWODZJUDhoSXZzL1pnRGFrc0pESUkyVkxxMEczZko1TlZBPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg
+avatar:
 
 # Your disqus username, entering this will enable commenting on posts
 disqus: rogerluo
@@ -28,9 +28,8 @@ disqus: rogerluo
 #
 
 baseurl: ""
-markdown: kramdown
-highlighter: pygments
-permalink: /:title
+markdown: Kramdown
+# highlighter: pygments 
 
 # Emoji please!
 gems:
