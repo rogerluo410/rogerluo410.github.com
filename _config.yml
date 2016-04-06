@@ -1,0 +1,44 @@
+#
+# This file contains configuration flags to customize your site
+#
+
+# The name of your site (displayed in the header)
+name: Roger Luo
+
+# A short bio or description (displayed in the header)
+description: An unknown coder.
+
+# Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
+# Used for Sitemap.xml and your RSS feed
+url: http://rogerluo.github.io
+
+# A URL pointing to your avatar or profile pic
+# To use your Gravatar: (the one that GitHub uses for your profile pic)
+#   1. Go to https://github.com/YOURUSERNAME/
+#   2. Right click and Copy Image URL on your profile pic,
+#   3. Take the first long ID from the URL and paste it in place of mine below
+avatar: http://imglf1.nosdn0.126.net/img/WENlT3Vud0JMSFJWMEhxSkY5RDdWODZJUDhoSXZzL1pnRGFrc0pESUkyVkxxMEczZko1TlZBPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg
+
+# Your disqus username, entering this will enable commenting on posts
+disqus: rogerluo
+
+
+#
+# !! You don't need to change any of the configuration flags below !!
+#
+
+baseurl: ""
+markdown: kramdown
+highlighter: pygments
+permalink: /:title
+
+# Emoji please!
+gems:
+  - jemoji
+
+# Exclude these files from your production _site
+exclude:
+    - Gemfile
+    - Gemfile.lock
+    - scss
+    - README.md

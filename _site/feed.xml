@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Roger Luo</title>
+    <description>An unknown coder.</description>
+    <link></link>
+    <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
+    
+      <item>
+        <title>Sorry for Xuan</title>
+        <description>&lt;h1 id=&quot;test&quot;&gt;Test&lt;/h1&gt;
+
+&lt;p&gt;&lt;code&gt;YinXuan&lt;/code&gt;,  Love is hard to speak out.&lt;/p&gt;
+
+&lt;p&gt;Sorry for the disappear before,&lt;/p&gt;
+
+&lt;p&gt;Lets try my best!&lt;/p&gt;
+</description>
+        <pubDate>Wed, 06 Apr 2016 00:00:00 -0700</pubDate>
+        <link>//hack-typography/</link>
+        <guid isPermaLink="true">//hack-typography/</guid>
+      </item>
+    
+  </channel>
+</rss>
