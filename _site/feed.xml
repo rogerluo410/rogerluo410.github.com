@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Roger Luo</title>
-    <description>A coder of rails.</description>
+    <description>A little coder of Rails.</description>
     <link></link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
     
@@ -18,7 +18,7 @@
 &lt;img src=&quot;/images/md.jpg&quot; alt=&quot;md&quot; /&gt;&lt;/p&gt;
 
 </description>
-        <pubDate>Wed, 06 Apr 2016 00:00:00 -0700</pubDate>
+        <pubDate>Wed, 06 Apr 2016 00:00:00 +0800</pubDate>
         <link>//tech/2016/04/06/test-for-markdown.html</link>
         <guid isPermaLink="true">//tech/2016/04/06/test-for-markdown.html</guid>
       </item>
