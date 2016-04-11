@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <title>Researching ActiveSupport::Concern – Roger Luo – A little coder of Rails.</title>
+
+    <meta name="author" content="Roger Luo" />
+    <meta name="description" content="A little coder of Rails.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="stylesheet" type="text/css" href="/syntax.css" /> 
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+
+  </head>
+
+  <body style="background-image : url(/images/bg2.jpg);
+               background-size: 100%; 
+               background-repeat: no-repeat; 
+               background-attachment: fixed;">
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Roger Luo</a></h1>
+            <p class="site-description">A little coder of Rails.</p>
+          </div>
+          
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container"><article class="post">
+
+	<h1>Researching ActiveSupport::Concern</h1>
+
+  <div class="entry">
+    <p>在设计程序框架时，我们可能会定义很多类和模块。 并且这些类和模块之间有着很复杂的网状依赖关系。</p>
+
+<p>通常， 我们这么定义一些依赖：</p>
+
+<ul>
+  <li>手动式模块横向依赖管理</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15</pre></td><td class="code"><pre><span class="k">module</span> <span class="nn">Ma</span>
+ <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+   <span class="n">base</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="ss">:do_host_something</span><span class="p">)</span> 
+ <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">module</span> <span class="nn">Mb</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+   <span class="n">base</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="ss">:do_host_something</span><span class="p">)</span> 
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">CHost</span>
+ <span class="kp">include</span> <span class="no">Ma</span><span class="p">,</span> <span class="no">Mb</span>
+<span class="k">end</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>类CHost依赖2个模块Ma, Mb。 那么， 问题来了， 当需要依赖1个模块， 20个模块， 100个模块时… 我们是否也需要一个一个的加入？ 
+像 include Ma, Mb, Mc, … Mx。 显然这是模块依赖管理的一个小麻烦。 我把它叫做手动式模块横向依赖管理。</p>
+
+<p>好了， 通常我们会想到另一种方法， 将modules的依赖写在module中， 用一个module管理这些依赖， 那么在类中只需要引用一个依赖的模块。 
+从结构上看这是一种纵向依赖结构。</p>
+
+<ul>
+  <li>模块纵向依赖结构</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11</pre></td><td class="code"><pre><span class="k">module</span> <span class="nn">Ma</span>
+  <span class="kp">include</span> <span class="no">Mb</span><span class="p">,</span> <span class="no">Mc</span><span class="p">,</span> <span class="no">Md</span> 
+
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">included</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="n">base</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="ss">:do_host_something</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">CHost</span>
+  <span class="kp">include</span> <span class="no">Ma</span>  <span class="c1">#仅仅需要include Ma即可。</span>
+<span class="k">end</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>这种结构看似没什么问题， 其实也没什么问题。 但是， 在有一种场景下， 它将使我们陷入尴尬境地。</p>
+
+<p>类是一种抽象， 一个类描述一类特定的对象。 但是， 有时我们希望类能够拥有一些特别的功能或者特性化。 多态是一种方式， 但是会使类继承结构复杂化。</p>
+
+<p>另一种方式， 是使用模块， 在模块中打开类，使用反射机制， 以使类能特性化。</p>
+
+<p>模块纵向依赖结构中， 一个最大的问题是，由于<code class="highlighter-rouge">Mb,Mc,Md</code>变成被<code class="highlighter-rouge">Ma</code>所include, 在<code class="highlighter-rouge">Ma</code>的函数<code class="highlighter-rouge">self.included(base)</code>中， <code class="highlighter-rouge">base</code>变成了<code class="highlighter-rouge">Mb,Mc,Md</code> 三个模块， 导致<code class="highlighter-rouge">Ma</code>中无法对宿主类<code class="highlighter-rouge">CHost</code>进行扩展。</p>
+
+<ul>
+  <li>模块横向依赖结构<br />
+终于回到主题了。 我们需要一种方法， 使我们能够在多依赖模块的场景中，宿主类只需include一个模块就可以在其他所有依赖的模块中， 扩展自己。</li>
+</ul>
+
+<p><code class="highlighter-rouge">ActiveSupport::Concern</code> 就是为这种场景而生。</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre></td><td class="code"><pre> <span class="k">module</span> <span class="nn">Ma</span>
+   <span class="kp">extend</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Concern</span>
+   <span class="n">included</span> <span class="k">do</span>
+     <span class="nb">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="ss">:do_host_something</span><span class="p">)</span>
+   <span class="k">end</span>
+ <span class="k">end</span>
+
+ <span class="k">module</span> <span class="nn">Mb</span>
+   <span class="kp">extend</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Concern</span>
+   <span class="kp">include</span> <span class="no">Ma</span>
+   <span class="n">included</span> <span class="k">do</span>
+     <span class="nb">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="ss">:do_host_something</span><span class="p">)</span>
+   <span class="k">end</span>
+ <span class="k">end</span>
+
+ <span class="k">class</span> <span class="nc">CHost</span>
+   <span class="kp">include</span> <span class="no">Mb</span>  <span class="c1">#只需include Mb, 而不需要知道Mb依赖了哪些模块。  </span>
+ <span class="k">end</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>通过<a href="https://github.com/rails/rails/blob/master/activesupport/lib/active_support/concern.rb">源码</a>， 我们可以看到：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</pre></td><td class="code"><pre>   <span class="k">def</span> <span class="nf">append_features</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">base</span><span class="p">.</span><span class="nf">instance_variable_defined?</span><span class="p">(</span><span class="ss">:@_dependencies</span><span class="p">)</span>
+        <span class="n">base</span><span class="p">.</span><span class="nf">instance_variable_get</span><span class="p">(</span><span class="ss">:@_dependencies</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+        <span class="k">return</span> <span class="kp">false</span>
+      <span class="k">else</span>
+        <span class="k">return</span> <span class="kp">false</span> <span class="k">if</span> <span class="n">base</span> <span class="o">&lt;</span> <span class="nb">self</span>
+        <span class="vi">@_dependencies</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">dep</span><span class="o">|</span> <span class="n">base</span><span class="p">.</span><span class="nf">include</span><span class="p">(</span><span class="n">dep</span><span class="p">)</span> <span class="p">}</span>
+        <span class="k">super</span>
+        <span class="n">base</span><span class="p">.</span><span class="nf">extend</span> <span class="nb">const_get</span><span class="p">(</span><span class="ss">:ClassMethods</span><span class="p">)</span> <span class="k">if</span> <span class="nb">const_defined?</span><span class="p">(</span><span class="ss">:ClassMethods</span><span class="p">)</span>
+        <span class="n">base</span><span class="p">.</span><span class="nf">class_eval</span><span class="p">(</span><span class="o">&amp;</span><span class="vi">@_included_block</span><span class="p">)</span> <span class="k">if</span> <span class="n">instance_variable_defined?</span><span class="p">(</span><span class="ss">:@_included_block</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">included</span><span class="p">(</span><span class="n">base</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">base</span><span class="p">.</span><span class="nf">nil?</span>
+        <span class="k">raise</span> <span class="no">MultipleIncludedBlocks</span> <span class="k">if</span> <span class="n">instance_variable_defined?</span><span class="p">(</span><span class="ss">:@_included_block</span><span class="p">)</span>
+
+        <span class="vi">@_included_block</span> <span class="o">=</span> <span class="n">block</span>
+      <span class="k">else</span>
+        <span class="k">super</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>我们可以看到， <code class="highlighter-rouge">ActiveSupport::Concern</code> 的<code class="highlighter-rouge">included</code>函数中， 如果有代码块对象， 则使用class_eval进行扩展。</p>
+
+<p>另外, 如果我们定义<code class="highlighter-rouge">module ClassMethods</code> 和 <code class="highlighter-rouge">module InstanceMethods</code>， 它会自动帮我们将实例方法和类方法载入到宿主里去。<br />
+就不用写 <code class="highlighter-rouge">send(:include, InstanceMethods)</code> 和 <code class="highlighter-rouge">send(:extend, ClassMethods)</code>。</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre></td><td class="code"><pre>   <span class="k">module</span> <span class="nn">Foo</span>
+    <span class="kp">extend</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Concern</span>
+    <span class="n">included</span> <span class="k">do</span>
+        <span class="nb">self</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="ss">:do_host_something</span><span class="p">)</span>
+    <span class="k">end</span>
+
+     <span class="k">module</span> <span class="nn">ClassMethods</span>
+        <span class="k">def</span> <span class="nf">bite</span>
+          <span class="c1"># do something</span>
+        <span class="k">end</span>
+     <span class="k">end</span>
+
+     <span class="k">module</span> <span class="nn">InstanceMethods</span>
+        <span class="k">def</span> <span class="nf">poke</span>
+           <span class="c1"># do something</span>
+        <span class="k">end</span>
+     <span class="k">end</span>
+   <span class="k">end</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>另一个例子:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13</pre></td><td class="code"><pre>  <span class="k">module</span> <span class="nn">OuterFile</span>
+    <span class="kp">extend</span> <span class="no">ActiveSupport</span><span class="o">::</span><span class="no">Concern</span>
+
+    <span class="n">included</span> <span class="k">do</span>
+      <span class="n">validates</span> <span class="ss">:file_id</span><span class="p">,</span> <span class="ss">presence: </span><span class="kp">true</span>
+
+      <span class="k">def</span> <span class="nf">file</span>
+        <span class="no">Photo</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="nf">file_id</span><span class="p">)</span>
+      <span class="k">end</span>
+      
+    <span class="k">end</span>
+  <span class="k">end</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>最后，题外话， Concern最好命名以able结尾!</p>
+
+
+  </div>
+
+  <div class="date">
+    Written on April 11, 2016
+  </div>
+
+</article>
+</div>
+
+
+    
+  </body>
+</html>
+
