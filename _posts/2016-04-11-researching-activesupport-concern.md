@@ -156,4 +156,7 @@ end
 
  最后，题外话， Concern最好命名以able结尾!
 
+ 参考：     
+ https://ruby-china.org/topics/19812  --ActiveSupport::Concern 小结   
+
  [1]: https://github.com/rails/rails/blob/master/activesupport/lib/active_support/concern.rb

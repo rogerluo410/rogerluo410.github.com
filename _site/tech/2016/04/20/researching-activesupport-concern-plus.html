@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <title>Researching Module include/extend plus – Roger Luo – A little coder of Rails.</title>
+
+    <meta name="author" content="Roger Luo" />
+    <meta name="description" content="A little coder of Rails.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="stylesheet" type="text/css" href="/syntax.css" /> 
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+
+  </head>
+
+  <body style="background-image : url(/images/bg2.jpg);
+               background-size: 100%; 
+               background-repeat: no-repeat; 
+               background-attachment: fixed;">
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Roger Luo</a></h1>
+            <p class="site-description">A little coder of Rails.</p>
+          </div>
+          
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container"><article class="post">
+
+	<h1>Researching Module include/extend plus</h1>
+
+  <div class="entry">
+    <h2 id="module-class--module-include--extend-">为什么要定义一个module， 以供其他Class 或 Module 去include 或 extend 实现功能扩展？</h2>
+
+<p>我们看看下面的一个场景：</p>
+
+<ul>
+  <li>Scene one</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16</pre></td><td class="code"><pre> <span class="k">module</span> <span class="nn">M1</span>
+   <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">m1_module_func</span>
+     <span class="nb">p</span> <span class="s2">"In module"</span>
+   <span class="k">end</span>
+ <span class="k">end</span>
+
+ <span class="k">class</span> <span class="nc">C1</span>
+   <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">c1_class_method1</span>
+     <span class="no">M1</span><span class="o">::</span><span class="n">m1_module_func</span>  <span class="c1"># 访问M1的方法 m1_module_func</span>
+   <span class="k">end</span>
+
+   <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>
+     <span class="no">M1</span><span class="o">::</span><span class="n">m1_module_func</span> <span class="c1"># 访问M1的方法 m1_module_func</span>
+   <span class="k">end</span>
+ <span class="k">end</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>既然，我们可以通过模块域名访问的方式访问模块的方法，那么， 为什么还要通过include, extend去扩展使类或模块变得更大更臃肿呢？</p>
+
+<p>其实不然，延伸来看，一些公共的模块抽象出来， 还是可以达到代码复用的作用。 如果用<code class="highlighter-rouge">ActiveSupport::Concern</code> 可以处理复杂的嵌套扩展中的Base问题。  从model层设计的角度看， <code class="highlighter-rouge">代码过多加 module, 职责过多加 scope</code>。</p>
+
+<h2 id="includeextend">有关include、extend和对象的祖先链、隐藏类之间的关系</h2>
+
+<ul>
+  <li>Scene two</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27</pre></td><td class="code"><pre><span class="k">module</span> <span class="nn">M2</span>
+  <span class="c1"># M2的实例方法</span>
+  <span class="k">def</span> <span class="nf">m2_instance_method</span>
+    <span class="nb">p</span> <span class="s2">"In m2_instance_method"</span>
+  <span class="k">end</span>
+
+  <span class="c1"># M2的类方法</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">m2_module_method</span>
+    <span class="nb">p</span> <span class="s2">"In M2::m2_module_method"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">C2</span>
+  <span class="kp">include</span> <span class="no">M2</span>
+
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">ancestors</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">instance_methods</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">singleton_methods</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">C3</span>
+  <span class="kp">extend</span> <span class="no">M2</span>
+
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">ancestors</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">instance_methods</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">singleton_methods</span>
+<span class="k">end</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Output:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26</pre></td><td class="code"><pre><span class="no">In</span> <span class="no">C2</span><span class="p">:</span>  
+<span class="p">[</span><span class="no">C2</span><span class="p">,</span> <span class="no">M2</span><span class="p">,</span> <span class="no">Object</span><span class="p">,</span> <span class="no">Kernel</span><span class="p">,</span> <span class="no">BasicObject</span><span class="p">]</span>   
+<span class="p">[</span><span class="ss">:m2_instance_method</span><span class="p">,</span> <span class="ss">:nil?</span><span class="p">,</span> <span class="ss">:===</span><span class="p">,</span> <span class="p">:</span><span class="o">=~</span><span class="p">,</span> <span class="p">:</span><span class="o">!~</span><span class="p">,</span> <span class="ss">:eql?</span><span class="p">,</span> <span class="ss">:hash</span><span class="p">,</span> <span class="ss">:&lt;=&gt;</span><span class="p">,</span> <span class="ss">:class</span><span class="p">,</span> 
+<span class="ss">:singleton_class</span><span class="p">,</span> <span class="ss">:clone</span><span class="p">,</span> <span class="ss">:dup</span><span class="p">,</span> <span class="ss">:taint</span><span class="p">,</span> <span class="ss">:tainted?</span><span class="p">,</span> <span class="ss">:untaint</span><span class="p">,</span> <span class="ss">:untrust</span><span class="p">,</span> 
+<span class="ss">:untrusted?</span><span class="p">,</span> <span class="ss">:trust</span><span class="p">,</span> <span class="ss">:freeze</span><span class="p">,</span> <span class="ss">:frozen?</span><span class="p">,</span> <span class="ss">:to_s</span><span class="p">,</span> <span class="ss">:inspect</span><span class="p">,</span> <span class="ss">:methods</span><span class="p">,</span> 
+<span class="ss">:singleton_methods</span><span class="p">,</span> <span class="ss">:protected_methods</span><span class="p">,</span> <span class="ss">:private_methods</span><span class="p">,</span> <span class="ss">:public_methods</span><span class="p">,</span>
+<span class="ss">:instance_variables</span><span class="p">,</span> <span class="ss">:instance_variable_get</span><span class="p">,</span> <span class="ss">:instance_variable_set</span><span class="p">,</span> 
+<span class="ss">:instance_variable_defined?</span><span class="p">,</span> <span class="ss">:remove_instance_variable</span><span class="p">,</span> <span class="ss">:instance_of?</span><span class="p">,</span> 
+<span class="ss">:kind_of?</span><span class="p">,</span> <span class="ss">:is_a?</span><span class="p">,</span> <span class="ss">:tap</span><span class="p">,</span> <span class="ss">:send</span><span class="p">,</span> <span class="ss">:public_send</span><span class="p">,</span> <span class="ss">:respond_to?</span><span class="p">,</span> <span class="ss">:extend</span><span class="p">,</span> 
+<span class="ss">:display</span><span class="p">,</span> <span class="ss">:method</span><span class="p">,</span> <span class="ss">:public_method</span><span class="p">,</span> <span class="ss">:singleton_method</span><span class="p">,</span> <span class="ss">:define_singleton_method</span><span class="p">,</span> 
+<span class="ss">:object_id</span><span class="p">,</span> <span class="ss">:to_enum</span><span class="p">,</span> <span class="ss">:enum_for</span><span class="p">,</span> <span class="ss">:==</span><span class="p">,</span> <span class="ss">:equal?</span><span class="p">,</span> <span class="p">:</span><span class="o">!</span><span class="p">,</span> <span class="p">:</span><span class="o">!=</span><span class="p">,</span> <span class="ss">:instance_eval</span><span class="p">,</span> 
+<span class="ss">:instance_exec</span><span class="p">,</span> <span class="ss">:__send__</span><span class="p">,</span> <span class="ss">:__id__</span><span class="p">]</span>  
+<span class="p">[]</span>   
+
+<span class="no">In</span> <span class="no">C3</span><span class="p">:</span>  
+<span class="p">[</span><span class="no">C3</span><span class="p">,</span> <span class="no">Object</span><span class="p">,</span> <span class="no">Kernel</span><span class="p">,</span> <span class="no">BasicObject</span><span class="p">]</span>
+<span class="p">[</span><span class="ss">:nil?</span><span class="p">,</span> <span class="ss">:===</span><span class="p">,</span> <span class="p">:</span><span class="o">=~</span><span class="p">,</span> <span class="p">:</span><span class="o">!~</span><span class="p">,</span> <span class="ss">:eql?</span><span class="p">,</span> <span class="ss">:hash</span><span class="p">,</span> <span class="ss">:&lt;=&gt;</span><span class="p">,</span> <span class="ss">:class</span><span class="p">,</span> <span class="ss">:singleton_class</span><span class="p">,</span> 
+<span class="ss">:clone</span><span class="p">,</span> <span class="ss">:dup</span><span class="p">,</span> <span class="ss">:taint</span><span class="p">,</span> <span class="ss">:tainted?</span><span class="p">,</span> <span class="ss">:untaint</span><span class="p">,</span> <span class="ss">:untrust</span><span class="p">,</span> <span class="ss">:untrusted?</span><span class="p">,</span> 
+<span class="ss">:trust</span><span class="p">,</span> <span class="ss">:freeze</span><span class="p">,</span> <span class="ss">:frozen?</span><span class="p">,</span> <span class="ss">:to_s</span><span class="p">,</span> <span class="ss">:inspect</span><span class="p">,</span> <span class="ss">:methods</span><span class="p">,</span> <span class="ss">:singleton_methods</span><span class="p">,</span> 
+<span class="ss">:protected_methods</span><span class="p">,</span><span class="ss">:private_methods</span><span class="p">,</span> <span class="ss">:public_methods</span><span class="p">,</span> <span class="ss">:instance_variables</span><span class="p">,</span> 
+<span class="ss">:instance_variable_get</span><span class="p">,</span> <span class="ss">:instance_variable_set</span><span class="p">,</span> <span class="ss">:instance_variable_defined?</span><span class="p">,</span> 
+<span class="ss">:remove_instance_variable</span><span class="p">,</span> <span class="ss">:instance_of?</span><span class="p">,</span> <span class="ss">:kind_of?</span><span class="p">,</span> <span class="ss">:is_a?</span><span class="p">,</span> <span class="ss">:tap</span><span class="p">,</span> <span class="ss">:send</span><span class="p">,</span> 
+<span class="ss">:public_send</span><span class="p">,</span> <span class="ss">:respond_to?</span><span class="p">,</span> <span class="ss">:extend</span><span class="p">,</span> <span class="ss">:display</span><span class="p">,</span> <span class="ss">:method</span><span class="p">,</span> <span class="ss">:public_method</span><span class="p">,</span> 
+<span class="ss">:singleton_method</span><span class="p">,</span> <span class="ss">:define_singleton_method</span><span class="p">,</span> <span class="ss">:object_id</span><span class="p">,</span> <span class="ss">:to_enum</span><span class="p">,</span> <span class="ss">:enum_for</span><span class="p">,</span> 
+<span class="ss">:==</span><span class="p">,</span> <span class="ss">:equal?</span><span class="p">,</span> <span class="p">:</span><span class="o">!</span><span class="p">,</span> <span class="p">:</span><span class="o">!=</span><span class="p">,</span> <span class="ss">:instance_eval</span><span class="p">,</span> <span class="ss">:instance_exec</span><span class="p">,</span> <span class="ss">:__send__</span><span class="p">,</span> <span class="ss">:__id__</span><span class="p">]</span>
+<span class="p">[</span><span class="ss">:m2_instance_method</span><span class="p">]</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>通过以上输出， 我们可以得出结论：<br />
+  1. module的实例方法才能被扩展， 类方法始终只属于自己。 <br />
+  2. 使用include扩展， module进入该类的祖先链中， 仅公有和保护类型的实例方法可以变成该类的实例方法。 <br />
+  3. 使用extend扩展， module不会进入该类的祖先链中， 仅公有和保护类型的实例方法可以变成该类的类方法，即进入类的隐藏类中。</p>
+
+<h2 id="moduleclass">在多重扩展中， 有同名方法时， 会调用哪个module/class的？</h2>
+<ul>
+  <li>Scene three</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre></td><td class="code"><pre><span class="k">module</span> <span class="nn">M2</span>
+  <span class="c1"># M2的实例方法</span>
+  <span class="k">def</span> <span class="nf">m2_instance_method</span>
+    <span class="nb">p</span> <span class="s2">"In m2_instance_method"</span>
+  <span class="k">end</span>
+
+  <span class="c1"># M2的类方法</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">m2_module_method</span>
+    <span class="nb">p</span> <span class="s2">"In M2::m2_module_method"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">C2</span>
+  <span class="kp">include</span> <span class="no">M2</span>
+
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">ancestors</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">instance_methods</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">singleton_methods</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">C3</span>
+  <span class="kp">extend</span> <span class="no">M2</span>
+
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">ancestors</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">instance_methods</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">singleton_methods</span>
+<span class="k">end</span>
+
+<span class="k">module</span> <span class="nn">M3</span>
+  <span class="k">def</span> <span class="nf">m2_instance_method</span>
+    <span class="nb">p</span> <span class="s2">"In m2_instance_method of M2"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">C4</span> <span class="o">&lt;</span> <span class="no">C2</span>
+  <span class="kp">include</span> <span class="no">M2</span><span class="p">,</span> <span class="no">M3</span>
+  
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">ancestors</span> <span class="c1">#=&gt; [C4, M3, C2, M2, Object, Kernel, BasicObject]</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">instance_methods</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="nc">C5</span> <span class="o">&lt;</span> <span class="no">C3</span>
+  <span class="kp">include</span> <span class="no">M3</span><span class="p">,</span> <span class="no">M2</span>
+  
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">ancestors</span> <span class="c1">#=&gt; [C5, M3, M2, C3, Object, Kernel, BasicObject]</span>
+  <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">instance_methods</span>
+<span class="k">end</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>通过以上输出， 我们可以得出结论：     <br />
+ 1. 在C4中， 由于父类C2也扩展了M2， 所以M2在祖先链考前的位置， 根据就近原则， C4的实例访问的是M3的实例方法。      <br />
+ 2. 在C5中， 我们可以看出模块间的依赖关系，就近原则， 先include的先使用。</p>
+
+<h2 id="class--self">在使用class « self时遇到的问题</h2>
+
+<p>通常我们认为， 在类中， <code class="highlighter-rouge">def self.method end;</code> 和 用<code class="highlighter-rouge">class &lt;&lt; self</code> 打开类隐藏类， 去定义类的方法， 这两种方式没有区别。 
+ 虽然， 这两种方式都存放在类的隐藏类中， 但是， 还是会有些小的不同。</p>
+
+<ul>
+  <li>Scene four</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34</pre></td><td class="code"><pre>  <span class="k">module</span> <span class="nn">M1</span>
+    <span class="no">CT</span> <span class="o">=</span> <span class="s2">"ok"</span>
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">C0</span>
+    <span class="nc">CC</span> <span class="o">=</span> <span class="s2">"Not ok"</span>
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">C1</span> <span class="o">&lt;</span> <span class="no">C0</span>
+    <span class="no">CK</span> <span class="o">=</span> <span class="s2">"ck"</span>
+    <span class="kp">include</span> <span class="no">M1</span>
+
+    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">method1</span>
+      <span class="nb">puts</span> <span class="nb">self</span>
+      <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="no">CK</span><span class="si">}</span><span class="s2"> in method1"</span> <span class="c1">#=&gt; "ck in method1"</span>
+      <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="no">CC</span><span class="si">}</span><span class="s2"> in method1"</span> <span class="c1">#=&gt; "Not ok in method1"</span>
+      <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="no">CT</span><span class="si">}</span><span class="s2"> in method1"</span> <span class="c1">#=&gt; "ok in method1"</span>
+    <span class="k">end</span>
+
+    <span class="k">class</span> <span class="o">&lt;&lt;</span> <span class="nb">self</span>    
+      <span class="k">def</span> <span class="nf">method2</span>
+        <span class="nb">puts</span> <span class="nb">self</span>
+        <span class="nb">puts</span> <span class="nb">self</span><span class="p">.</span><span class="nf">const_defined?</span><span class="p">(</span><span class="ss">:CT</span><span class="p">)</span> <span class="c1">#=&gt; true</span>
+        <span class="nb">puts</span> <span class="nb">self</span><span class="o">::</span><span class="no">CT</span>  <span class="c1">#=&gt; ok</span>
+        <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="no">CK</span><span class="si">}</span><span class="s2"> in method2"</span> <span class="c1">#=&gt; "ck in method2"</span>
+        <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="no">CC</span><span class="si">}</span><span class="s2"> in method2"</span> <span class="c1">#=&gt; NameError: uninitialized constant Class::CC</span>
+        <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="no">CT</span><span class="si">}</span><span class="s2"> in method2"</span> <span class="c1">#=&gt; NameError: uninitialized constant Class::CT </span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="no">C1</span><span class="p">.</span><span class="nf">method1</span>
+  <span class="no">C1</span><span class="p">.</span><span class="nf">method2</span> 
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>Output:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9</pre></td><td class="code"><pre>    <span class="no">C1</span>
+    <span class="n">ck</span> <span class="k">in</span> <span class="n">method1</span>
+    <span class="n">ok</span> <span class="k">in</span> <span class="n">method1</span>
+    <span class="no">C1</span>
+    <span class="kp">true</span>
+    <span class="n">ok</span>
+    <span class="n">ck</span> <span class="k">in</span> <span class="n">method2</span>
+    <span class="no">NameError</span><span class="p">:</span> <span class="n">uninitialized</span> <span class="n">constant</span> <span class="no">Class</span><span class="o">::</span><span class="no">CT</span> <span class="k">in</span> <span class="sb">`method2'
+ </span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>可以看到， 在隐藏类中， 无法直接访问CT, 但是却可以C1::CT（实际是通过M1::CT找到该常量）、M1::CT 指明访问路径的访问CT。 这是为什么呢？</p>
+
+<p>整个依赖结构是不是这样的：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10</pre></td><td class="code"><pre> 
+    <span class="no">BasicObject</span>  
+        <span class="o">|</span>  
+      <span class="no">Kernel</span>  
+        <span class="o">|</span>  
+      <span class="no">Object</span>  
+        <span class="o">|</span>   
+        <span class="no">M1</span>   
+        <span class="o">|</span>  
+        <span class="no">C1</span> <span class="err">——</span> <span class="no">C1</span> <span class="no">EigenClass</span><span class="p">(</span><span class="err">隐藏类</span><span class="p">)</span>  <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>我们可以得出结论：        <br />
+ 1. 类方法都存放于隐藏类中， 但是它却和祖先链无关， 导致在隐藏类中无法访问祖先链上的元素(不认识这个常量)， 需要指明访问路径。  <br />
+ 2. 无论是继承还是模块扩展， 常量是不会继承下去的（在类中其实是去祖先链上查找，所以可以不用带上访问路径）， 由于， 隐藏类不在祖先链上，所以在隐藏类中必须加上访问路径，去该类的祖先链上查找。</p>
+
+<h2 id="section">类的隐藏类是否也继承？</h2>
+<ul>
+  <li>Scene five</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13</pre></td><td class="code"><pre>  <span class="k">class</span> <span class="nc">C0</span>
+    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">method0</span>
+      <span class="nb">p</span> <span class="s2">"In method0"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">class</span> <span class="nc">C1</span> <span class="o">&lt;</span> <span class="no">C0</span>
+    <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">method1</span>
+      <span class="nb">p</span> <span class="s2">"In method1"</span>
+    <span class="k">end</span>
+
+    <span class="nb">p</span> <span class="nb">self</span><span class="p">.</span><span class="nf">singleton_methods</span>  <span class="c1">#=&gt; [method1, method0]</span>
+  <span class="k">end</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>说明类的隐藏类中方法也被继承！
+依赖模型如下:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4</pre></td><td class="code"><pre> 
+     <span class="no">C0</span> <span class="o">-</span> <span class="no">C0</span> <span class="no">EigenClass</span>  
+     <span class="o">|</span>         <span class="o">|</span>  
+     <span class="no">C1</span> <span class="o">-</span> <span class="no">C1</span> <span class="no">EigenClass</span> <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>参考：  <br />
+https://ruby-china.org/topics/7709  –“胖” Model 用 ActiveSupport::Concern 瘦身  <br />
+https://signalvnoise.com/posts/3372-put-chubby-models-on-a-diet-with-concerns  <br />
+https://ruby-china.org/topics/10654  –在 module 定义时，使用 class « self 的目的是什么呢？<br />
+https://ruby-china.org/topics/4777  –Ruby 的常量查找路径问题</p>
+
+  </div>
+
+  <div class="date">
+    Written on April 20, 2016
+  </div>
+
+</article>
+</div>
+
+
+    
+  </body>
+</html>
+
