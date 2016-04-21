@@ -262,7 +262,7 @@ end
 {% endhighlight %}        
 
 参考：    
-https://ruby-china.org/topics/7709  --“胖” Model 用 ActiveSupport::Concern 瘦身    
+https://ruby-china.org/topics/7709   --“胖” Model 用 ActiveSupport::Concern 瘦身    
 https://signalvnoise.com/posts/3372-put-chubby-models-on-a-diet-with-concerns    
 https://ruby-china.org/topics/10654  --在 module 定义时，使用 class << self 的目的是什么呢？  
-https://ruby-china.org/topics/4777  --Ruby 的常量查找路径问题      
+https://ruby-china.org/topics/4777   --Ruby 的常量查找路径问题      
