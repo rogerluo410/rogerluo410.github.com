@@ -8,7 +8,7 @@ tags: rails
 ---
 
 
-##为什么要定义一个module， 以供其他Class 或 Module 去include 或 extend 实现功能扩展？  
+## 为什么要定义一个module， 以供其他Class 或 Module 去include 或 extend 实现功能扩展？  
 
 我们看看下面的一个场景：  
 
@@ -36,7 +36,7 @@ tags: rails
 其实不然，延伸来看，一些公共的模块抽象出来， 还是可以达到代码复用的作用。 如果用`ActiveSupport::Concern` 可以处理复杂的嵌套扩展中的Base问题。  从model层设计的角度看， `代码过多加 module, 职责过多加 scope`。  
 
 
-##有关include、extend和对象的祖先链、隐藏类之间的关系  
+## 有关include、extend和对象的祖先链、隐藏类之间的关系  
 
 - Scene two  
 {% highlight ruby linenos %}
@@ -105,8 +105,9 @@ In C3:
   3. 使用extend扩展， module不会进入该类的祖先链中， 仅公有和保护类型的实例方法可以变成该类的类方法，即进入类的隐藏类中。     
 
 
-##在多重扩展中， 有同名方法时， 会调用哪个module/class的？  
-- Scene three
+## 在多重扩展中， 有同名方法时， 会调用哪个module/class的？  
+- Scene three  
+
 {% highlight ruby linenos %}
 module M2
   # M2的实例方法
@@ -162,7 +163,7 @@ end
  2. 在C5中， 我们可以看出模块间的依赖关系，就近原则， 先include的先使用。    
  
 
-##在使用class << self时遇到的问题  
+## 在使用class << self时遇到的问题  
 
  通常我们认为， 在类中， `def self.method end;` 和 用`class << self` 打开类隐藏类， 去定义类的方法， 这两种方式没有区别。 
  虽然， 这两种方式都存放在类的隐藏类中， 但是， 还是会有些小的不同。  
@@ -235,7 +236,7 @@ end
  2. 无论是继承还是模块扩展， 常量是不会继承下去的（在类中其实是去祖先链上查找，所以可以不用带上访问路径）， 由于， 隐藏类不在祖先链上，所以在隐藏类中必须加上访问路径，去该类的祖先链上查找。     
 
 
-##类的隐藏类是否也继承？  
+## 类的隐藏类是否也继承？  
 - Scene five    
 {% highlight ruby linenos %}
   class C0
