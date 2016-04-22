@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    <title>Researching Code-loaded in engineering world – Roger Luo – A little coder of Rails.</title>
+
+    <meta name="author" content="Roger Luo" />
+    <meta name="description" content="A little coder of Rails.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="stylesheet" type="text/css" href="/syntax.css" /> 
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+
+  </head>
+
+  <body style="background-image : url(/images/bg.jpg);
+               background-size: 100%; 
+               background-repeat: no-repeat; 
+               background-attachment: fixed;">
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">Roger Luo</a></h1>
+            <p class="site-description">A little coder of Rails.</p>
+          </div>
+          
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container" style="background:#FFF; "><article class="post">
+
+	<h1>Researching Code-loaded in engineering world</h1>
+
+  <div class="entry">
+    <p>我们知道， 在Ruby中，我们有三种方式加载外部文件的代码。 他们分别是： require, load, autoload。</p>
+
+<h2 id="ruby">Ruby中文件加载方法</h2>
+
+<ul>
+  <li>require(name) -&gt; true or false or raise LoadError</li>
+</ul>
+
+<blockquote>
+  <p>http://ruby-doc.org/core-2.1.2/Kernel.html#method-i-require</p>
+</blockquote>
+
+<ol>
+  <li>name可以是绝对路径，也可以是相对路径。Ruby会自动为name补充扩展名(.rb, .so, .etc)；</li>
+  <li>函数执行时，如果name是绝对路径，则会去查找该文件；</li>
+  <li>通常name是相对路径，Ruby会在$:中的目录中搜索该文件。所以通常需要$:.unshift添加搜索路径；</li>
+  <li>找到该文件后，会运行该文件，并把该文件的绝对路径加入全局变量$”中，以此保证不重复加载；</li>
+  <li>第一次加载返回true，已经加载返回false，找不到文件会抛出LoadError。</li>
+</ol>
+
+<p><strong>查看全局变量列表：</strong></p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8</pre></td><td class="code"><pre> <span class="nb">p</span> <span class="nb">global_variables</span>
+
+ <span class="p">[:</span><span class="vg">$;</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-F</span><span class="p">,</span> <span class="p">:</span><span class="vg">$@</span><span class="p">,</span> <span class="p">:</span><span class="vg">$!</span><span class="p">,</span> <span class="p">:</span><span class="vg">$SAFE</span><span class="p">,</span> <span class="p">:</span><span class="vg">$~</span><span class="p">,</span> <span class="p">:</span><span class="vg">$&amp;</span><span class="p">,</span> <span class="p">:</span><span class="vg">$`</span><span class="p">,</span> <span class="p">:</span><span class="vg">$'</span><span class="p">,</span> <span class="p">:</span><span class="vg">$+</span><span class="p">,</span> <span class="p">:</span><span class="vg">$=</span><span class="p">,</span> <span class="p">:</span><span class="vg">$KCODE</span><span class="p">,</span> 
+ <span class="p">:</span><span class="err">$</span><span class="o">-</span><span class="no">K</span><span class="p">,</span> <span class="p">:</span><span class="vg">$,</span><span class="p">,</span> <span class="p">:</span><span class="vg">$/</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-0</span><span class="p">,</span> <span class="p">:</span><span class="vg">$\</span><span class="p">,</span> <span class="p">:</span><span class="vg">$_</span><span class="p">,</span> <span class="p">:</span><span class="vg">$stdin</span><span class="p">,</span> <span class="p">:</span><span class="vg">$stdout</span><span class="p">,</span> <span class="p">:</span><span class="vg">$stderr</span><span class="p">,</span> <span class="p">:</span><span class="vg">$&gt;</span><span class="p">,</span> <span class="p">:</span><span class="vg">$&lt;</span><span class="p">,</span> 
+ <span class="p">:</span><span class="vg">$.</span><span class="p">,</span> <span class="p">:</span><span class="vg">$FILENAME</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-i</span><span class="p">,</span> <span class="p">:</span><span class="vg">$*</span><span class="p">,</span> <span class="p">:</span><span class="vg">$?</span><span class="p">,</span> <span class="p">:</span><span class="vg">$$</span><span class="p">,</span> <span class="p">:</span><span class="vg">$:</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-I</span><span class="p">,</span> <span class="p">:</span><span class="vg">$LOAD_PATH</span><span class="p">,</span> <span class="p">:</span><span class="vg">$"</span><span class="p">,</span> 
+ <span class="p">:</span><span class="vg">$LOADED_FEATURES</span><span class="p">,</span> <span class="p">:</span><span class="vg">$VERBOSE</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-v</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-w</span><span class="p">,</span> <span class="p">:</span><span class="err">$</span><span class="o">-</span><span class="no">W</span><span class="p">,</span> <span class="p">:</span><span class="vg">$DEBUG</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-d</span><span class="p">,</span> <span class="p">:</span><span class="vg">$0</span><span class="p">,</span> 
+ <span class="p">:</span><span class="vg">$PROGRAM_NAME</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-p</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-l</span><span class="p">,</span> <span class="p">:</span><span class="vg">$-a</span><span class="p">,</span> <span class="p">:</span><span class="vg">$1</span><span class="p">,</span> <span class="p">:</span><span class="vg">$2</span><span class="p">,</span> <span class="p">:</span><span class="vg">$3</span><span class="p">,</span> <span class="p">:</span><span class="vg">$4</span><span class="p">,</span> <span class="p">:</span><span class="vg">$5</span><span class="p">,</span> <span class="p">:</span><span class="vg">$6</span><span class="p">,</span> <span class="p">:</span><span class="vg">$7</span><span class="p">,</span> <span class="p">:</span><span class="vg">$8</span><span class="p">,</span> <span class="p">:</span><span class="vg">$9</span><span class="p">]</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<ul>
+  <li>load(filename, wrap=false) -&gt; true or raise LoadError</li>
+</ul>
+
+<blockquote>
+  <p>http://ruby-doc.org/core-2.1.2/Kernel.html#method-i-load</p>
+</blockquote>
+
+<ol>
+  <li>filename可以是绝对路径，也可以是相对路径。Ruby不会为filename添加扩展名；</li>
+  <li>函数执行时，如果filename是绝对路径，则会去查找该文件；</li>
+  <li>通常filename是相对路径，Ruby会在$:中的目录中搜索该文件。所以通常需要$:.unshift添加搜索路径；</li>
+  <li>wrap为true时，被加载文件会在一个匿名模块中执行，避免污染；</li>
+  <li>load会加载文件并执行，成功会返回true，找不到文件会抛出LoadError。</li>
+</ol>
+
+<ul>
+  <li>autoload(module, filename) -&gt; nil or raise LoadError</li>
+</ul>
+
+<blockquote>
+  <p>http://ruby-doc.org/core-2.1.2/Kernel.html#method-i-autoload</p>
+</blockquote>
+
+<ol>
+  <li>将filename与module关联，当第一次使用module时，使用require加载该文件；</li>
+  <li>执行过程与require一样；</li>
+  <li>成功返回nil，找不到文件会抛出LoadError。</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre></td><td class="code"><pre>   <span class="err">有同目录下外部文件</span> <span class="n">modules</span><span class="p">.</span><span class="nf">rb</span><span class="p">:</span>  
+   <span class="k">module</span> <span class="nn">M1</span>
+     <span class="no">C1</span> <span class="o">=</span> <span class="mi">0</span>
+     <span class="nb">p</span> <span class="s2">"In M1"</span>
+   <span class="k">end</span>
+ 
+   <span class="k">module</span> <span class="nn">M2</span>
+     <span class="no">C2</span> <span class="o">=</span> <span class="mi">1</span>
+   <span class="k">end</span>
+
+   <span class="k">module</span> <span class="nn">M3</span>
+    <span class="no">C3</span> <span class="o">=</span> <span class="mi">2</span>
+   <span class="k">end</span>
+
+
+   <span class="k">module</span> <span class="nn">M4</span>
+     <span class="nb">autoload</span><span class="p">(</span><span class="ss">:M1</span><span class="p">,</span> <span class="s2">"./modules.rb"</span><span class="p">)</span> <span class="c1">#相对路径是以本文件所在目录为参照。</span>
+     <span class="nb">p</span> <span class="no">M1</span><span class="o">::</span><span class="no">C1</span>  <span class="c1"># 正常访问</span>
+     <span class="nb">p</span> <span class="no">M2</span><span class="o">::</span><span class="no">C2</span>  <span class="c1"># 正常访问</span>
+   <span class="k">end</span>
+
+  <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p><strong>三个方法的共同点：</strong>  会搜索$:来寻找目标文件，找不到会抛出LoadError。       <br />
+<strong>三个方法的不同点：</strong>       <br />
+      1. require避免重复加载，无需指定扩展名；    <br />
+      2. load会重复加载，需指定扩展名；    <br />
+      3. autoload会在需要时用require加载，能避免重复加载，无需指定扩展名。</p>
+
+<p>autoload采用lazy_load机制加载文件，在第一次使用时， 文件才被加载，而require 是暴力加载， 无论我们是否需要，都会加载文件。</p>
+
+<h2 id="require">require的加载机制</h2>
+
+<p>按照官方解释，require将会在Ruby的$LOAD_PATH中查找对应文件并将其载入。 由于RubyGem使用地十分广泛，以至于Ruby开发团队决定予以其直接支
+持，这便是为什么我们总是发觉RubyGem被载入的原因了。这也同时更好地解释了，明明也是一个Gem，为什么RubyGem没有和其他Gem放到一块儿，并遵循
+Gem名加上版本号的命名方式。</p>
+
+<p>在我们 require ‘bar’ 这样加载文件时，如果‘bar’ 这个文件在我们的工程目录中， 通常会遇到LoadError异常。<br />
+因为很可能系统指定目录($LOAD_PATH)中并没有bar文件的路径, 导致加载异常。 一种解决方法是传入绝对路径或相对路径，但是这样并不是很好看。</p>
+
+<p>有几种方法， 可以在不用显示传入路径的情况下，解决工程中加载其他目录文件的问题。</p>
+
+<p>(1). 引用当前rb同目录下的一个文件</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8</pre></td><td class="code"><pre> <span class="c1"># 这也是rails中的常用方法， __FILE__指定的文件本身也代表一个层次， 相对路径是已本文件为参照。</span>
+ <span class="c1"># 所以， 同目录下的file_to_require文件， 需要`../`退至上层， 表示`同一目录`。 </span>
+ <span class="nb">require</span> <span class="no">File</span><span class="p">.</span><span class="nf">expand_path</span><span class="p">(</span><span class="s1">'../file_to_require'</span><span class="p">,</span> <span class="kp">__FILE__</span><span class="p">)</span> 
+
+ <span class="nb">require</span> <span class="no">File</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="kp">__FILE__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'/file_to_require'</span>
+
+ <span class="n">__FILE__</span><span class="err">为常量，表示当前文件的绝对路径，如</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">oldsong</span><span class="o">/</span><span class="nb">test</span><span class="p">.</span><span class="nf">rb</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>(2). 将目录加入全局环境变量中 <br />
+ 先把目录加入LOAD_PATH变量中，然后可直接引用文件名。</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3</pre></td><td class="code"><pre>  <span class="vg">$LOAD_PATH</span><span class="p">.</span><span class="nf">unshift</span><span class="p">(</span><span class="no">File</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="kp">__FILE__</span><span class="p">))</span>
+  <span class="nb">require</span> <span class="s1">'bar'</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>(3). 引用一个目录下所有文件 
+ 例如， 引用当前rb相同目录下lib/文件下所有*.rb文件。</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2</pre></td><td class="code"><pre>  <span class="no">Dir</span><span class="p">[</span><span class="no">File</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="kp">__FILE__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'/lib/*.rb'</span><span class="p">].</span><span class="nf">each</span> <span class="p">{</span><span class="o">|</span><span class="n">file</span><span class="o">|</span> <span class="nb">require</span> <span class="n">file</span> <span class="p">}</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>或者， 使用gem <a href="https://rubygems.org/gems/require_all">require_all</a></p>
+
+<h2 id="bundler--">bundler 工具， 帮助我们解决包依赖问题</h2>
+<p>在开发中， 需要什么依赖库， 具体依赖什么版本， 只需要写一个Gemfile清单，指定下载源， 输入命令bundle <br />
+ install后，开发环境就很方便的搭建完成， 依赖库也被安装到本机$LOAD_PATH指定的目录中。</p>
+
+<p>虽然，bundler工具会使依赖库安装完成，但它并不保证列在Gemfile里的依赖库在运行时被载入。为了让我们的程序使用上这些库，我们需要在运行时
+ 调用Bundler.setup，该方法将列举在Gemfile里的所有Gem被添加到LOAD_PATH中去。</p>
+
+<p>因此，Bundler.setup的行为类似于gem方法，用于帮助我们将特定版本的Gem载入到LOAD_PATH。只不过Bundler提供了更为高级的机制，使得我们能
+ 够在Gemfile里集中地管理所有依赖，并且省去了一一添加依赖的繁琐过程。</p>
+
+<h2 id="rubygemgem-install--bundler-bundle-install">RubyGem的gem install 和 bundler的 bundle install</h2>
+<p>.gemspec和Gemfile分别是干嘛的？我们知道，gemspec主要是用来描述Gem的元数据信息的，我们除了可以在此包含Gem的基本信息之外，还能够在此指出本Gem具体依赖于哪些其他Gem。
+不过，值得注意的是，这里仅仅是指出依赖关系，.gemspec并没有提供任何机制告诉我们，到哪里才能下载并部署这些被依赖的Gem。</p>
+
+<p>.gemspec之所以缺少运行时的支持，那是因为下载、部署、以及载入并不是其设计之初的职责所在。这些问题是被后来者Bundler解决的。那么，既然搞清了其用途上的差异，我们又当如何
+解决其内容的冗余这个问题呢？答案很简单，在Gemfile文件中调用gemspec方法，它会自动告诉Bundler到同目录下查找.gemspec文件并载入其中指明的Gem依赖。</p>
+
+<h2 id="rails">Rails的代码载入机制</h2>
+<p>Rails开发者倾向于不使用显式的代码载入机制，为了实现这个目的，Rails使用了大量的自动载入机制。其一便是autoload，关于它的原理，以后我会撰文剖析。autoload主要用于载入
+ Rails自己的组件，而对于依赖Gem的载入，Rails使用了Bundler.require机制。在Rails项目的文件config/application.rb负责实现此特性：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre></td><td class="code"><pre><span class="nb">require</span> <span class="no">File</span><span class="p">.</span><span class="nf">expand_path</span><span class="p">(</span><span class="s1">'../boot'</span><span class="p">,</span> <span class="kp">__FILE__</span><span class="p">)</span>
+
+<span class="nb">require</span> <span class="s1">'rails/all'</span>
+
+<span class="c1"># Require the gems listed in Gemfile, including any gems</span>
+<span class="c1"># you've limited to :test, :development, or :production.</span>
+<span class="no">Bundler</span><span class="p">.</span><span class="nf">require</span><span class="p">(</span><span class="o">*</span><span class="no">Rails</span><span class="p">.</span><span class="nf">groups</span><span class="p">)</span>
+
+<span class="k">module</span> <span class="nn">Project_name</span>
+  <span class="k">class</span> <span class="nc">Application</span> <span class="o">&lt;</span> <span class="no">Rails</span><span class="o">::</span><span class="no">Application</span>
+    <span class="c1"># Settings in config/environments/* take precedence over those specified here.</span>
+    <span class="c1"># Application configuration should go into files in config/initializers</span>
+    <span class="c1"># -- all .rb files in that directory are automatically loaded.</span>
+
+    <span class="c1"># Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.</span>
+    <span class="c1"># Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.</span>
+    <span class="c1"># config.time_zone = 'Central Time (US &amp; Canada)'</span>
+
+    <span class="n">config</span><span class="p">.</span><span class="nf">assets</span><span class="p">.</span><span class="nf">enabled</span> <span class="o">=</span> <span class="kp">false</span>
+    <span class="c1"># The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.</span>
+    <span class="c1"># config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]</span>
+    <span class="c1"># config.i18n.default_locale = :de</span>
+    <span class="n">config</span><span class="p">.</span><span class="nf">i18n</span><span class="p">.</span><span class="nf">locale</span> <span class="o">=</span> <span class="s2">"zh-CN"</span>
+    <span class="n">config</span><span class="p">.</span><span class="nf">autoload_paths</span> <span class="o">+=</span> <span class="no">Dir</span><span class="p">[</span><span class="s2">"</span><span class="si">#{</span><span class="no">Rails</span><span class="p">.</span><span class="nf">root</span><span class="si">}</span><span class="s2">/lib"</span><span class="p">]</span>
+    <span class="n">config</span><span class="p">.</span><span class="nf">assets</span><span class="p">.</span><span class="nf">precompile</span> <span class="o">+=</span> <span class="sx">%w( home.css )</span>
+
+    <span class="n">config</span><span class="p">.</span><span class="nf">middleware</span><span class="p">.</span><span class="nf">insert_after</span> <span class="no">ActionDispatch</span><span class="o">::</span><span class="no">Static</span><span class="p">,</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Cors</span> <span class="k">do</span>
+      <span class="n">allow</span> <span class="k">do</span>
+        <span class="n">origins</span> <span class="sr">/^http:\/\/192\.168\.0\.\d{1,3}:8888$/</span>
+        <span class="n">resource</span> <span class="s1">'*'</span><span class="p">,</span>
+          <span class="c1"># :headers =&gt; :any,</span>
+          <span class="ss">:headers</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s2">"Origin"</span><span class="p">,</span> <span class="s2">"X-Requested-With"</span><span class="p">,</span> <span class="s2">"Content-Type"</span><span class="p">,</span> <span class="s2">"Accept"</span><span class="p">,</span> <span class="s2">"Authorization"</span><span class="p">],</span>
+          <span class="ss">:methods</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="ss">:get</span><span class="p">,</span> <span class="ss">:post</span><span class="p">,</span> <span class="ss">:delete</span><span class="p">,</span> <span class="ss">:put</span><span class="p">,</span> <span class="ss">:options</span><span class="p">,</span> <span class="ss">:head</span><span class="p">,</span> <span class="ss">:patch</span><span class="p">],</span>
+          <span class="ss">:expose</span>  <span class="o">=&gt;</span> <span class="p">[</span><span class="s1">'access-token'</span><span class="p">,</span> <span class="s1">'expiry'</span><span class="p">,</span> <span class="s1">'token-type'</span><span class="p">,</span> <span class="s1">'uid'</span><span class="p">,</span> <span class="s1">'client'</span><span class="p">],</span>
+          <span class="ss">:max_age</span> <span class="o">=&gt;</span> <span class="mi">600</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="no">In</span> <span class="no">Gemfile</span><span class="p">:</span>  <span class="no">Bundler</span><span class="p">.</span><span class="nf">require</span><span class="p">(</span><span class="o">*</span><span class="no">Rails</span><span class="p">.</span><span class="nf">groups</span><span class="p">)</span> <span class="err">只加载全部环境使用的和指定</span><span class="n">group</span><span class="err">里的。</span>
+<span class="n">gem</span> <span class="s1">'state_machines-activerecord'</span>
+<span class="n">gem</span> <span class="s1">'oneapm_rpm'</span>
+<span class="n">gem</span> <span class="s1">'qiniu'</span>
+<span class="n">gem</span> <span class="s1">'httparty'</span>
+<span class="n">gem</span> <span class="s1">'acts_as_list'</span>
+<span class="n">gem</span> <span class="s1">'connection_pool'</span>
+<span class="n">gem</span> <span class="s1">'redis-objects'</span>
+<span class="n">gem</span> <span class="s1">'cancancan'</span><span class="p">,</span> <span class="s1">'~&gt; 1.10'</span>
+<span class="n">gem</span> <span class="s1">'rack-cors'</span><span class="p">,</span> <span class="ss">require: </span><span class="s1">'rack/cors'</span>
+<span class="n">gem</span> <span class="s2">"settingslogic"</span><span class="p">,</span> <span class="s2">"~&gt; 2.0.6"</span>
+
+<span class="c1"># send exception notification to mail</span>
+<span class="n">gem</span> <span class="s1">'exception_notification'</span>
+
+<span class="n">group</span> <span class="ss">:doc</span> <span class="k">do</span>
+  <span class="c1"># bundle exec rake doc:rails generates the API under doc/api.</span>
+  <span class="n">gem</span> <span class="s1">'sdoc'</span><span class="p">,</span> <span class="ss">require: </span><span class="kp">false</span>
+<span class="k">end</span>
+
+<span class="n">group</span> <span class="ss">:development</span> <span class="k">do</span>
+  <span class="n">gem</span> <span class="s1">'better_errors'</span>
+  <span class="n">gem</span> <span class="s1">'quiet_assets'</span>
+  <span class="c1"># gem 'rack-mini-profiler'</span>
+  <span class="n">gem</span> <span class="s1">'brakeman'</span><span class="p">,</span> <span class="ss">:require</span> <span class="o">=&gt;</span> <span class="kp">false</span>
+<span class="k">end</span>
+<span class="c1"># Use ActiveModel has_secure_password</span>
+<span class="c1"># gem 'bcrypt-ruby', '~&gt; 3.1.2'</span>
+
+<span class="n">group</span> <span class="ss">:test</span><span class="p">,</span> <span class="ss">:development</span> <span class="k">do</span>
+  <span class="n">gem</span> <span class="s1">'rspec-rails'</span>
+  <span class="n">gem</span> <span class="s1">'factory_girl_rails'</span>
+  <span class="n">gem</span> <span class="s1">'simplecov'</span>
+  <span class="n">gem</span> <span class="s1">'vcr'</span>
+  <span class="n">gem</span> <span class="s1">'spork'</span> <span class="c1">#加上这个gem, 覆盖率才能覆盖Controller层 API接口 https://github.com/sporkrb/spork</span>
+<span class="k">end</span>
+
+<span class="n">group</span> <span class="ss">:test</span> <span class="k">do</span>
+  <span class="n">gem</span> <span class="s1">'webmock'</span>
+  <span class="n">gem</span> <span class="s1">'rspec-sidekiq'</span>
+<span class="k">end</span>
+ <span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+<p>参考：<br />
+http://www.cnblogs.com/evallife/p/3917610.html                      –Ruby中的require、load、autoload <br />
+http://www.cnblogs.com/Dahaka/archive/2013/03/10/ruby_require.html  –require背后的故事  <br />
+http://www.jb51.net/article/69382.htm                               –举例讲解Ruby中require的使用方法</p>
+
+
+  </div>
+
+  <div class="date">
+    Written on April 21, 2016
+  </div>
+
+</article>
+</div>
+
+
+    
+  </body>
+</html>
+

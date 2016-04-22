@@ -2,7 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
     <url>
-        <loc>http://rogerluo.github.io/tech/2016/04/20/researching-activesupport-concern-plus.html</loc>
+        <loc>http://rogerluo.github.io/tech/2016/04/21/researching-code-load-in-engineering-world.html</loc>
+    </url>
+    
+    <url>
+        <loc>http://rogerluo.github.io/tech/2016/04/20/researching-module-include-extend-plus.html</loc>
     </url>
     
     <url>

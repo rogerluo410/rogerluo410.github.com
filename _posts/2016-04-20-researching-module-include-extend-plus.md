@@ -1,5 +1,5 @@
 ---
-title: 'Researching Module include/extend plus'
+title: 'Researching Module include/extend usage'
 author: roger luo
 layout: post
 categories:
